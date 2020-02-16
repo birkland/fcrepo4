@@ -138,6 +138,7 @@ public class UpdateRDFSourcePersisterTest {
         // Setup headers of resource before this operation
         final var headers = newResourceHeaders(ROOT_RESOURCE_ID, RESOURCE_ID, BASIC_CONTAINER.toString());
         touchCreationHeaders(headers, USER_PRINCIPAL);
+        Thread.sleep(1000);
         touchModificationHeaders(headers, USER_PRINCIPAL);
         final var headerStream = serializeHeaders(headers);
         when(session.read(anyString())).thenReturn(headerStream);

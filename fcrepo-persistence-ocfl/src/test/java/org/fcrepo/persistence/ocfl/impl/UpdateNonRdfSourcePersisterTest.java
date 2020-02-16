@@ -143,6 +143,7 @@ public class UpdateNonRdfSourcePersisterTest {
 
         final var headers = newResourceHeaders(ROOT_RESOURCE_ID, RESOURCE_ID, NON_RDF_SOURCE.toString());
         touchCreationHeaders(headers, USER_PRINCIPAL);
+        Thread.sleep(1000);
         touchModificationHeaders(headers, USER_PRINCIPAL);
         final var headerStream = serializeHeaders(headers);
         when(session.read(anyString())).thenReturn(headerStream);

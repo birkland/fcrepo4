@@ -106,7 +106,7 @@ public class ResourceHeaderUtils {
             final Instant modifiedDate) {
         final Instant instant;
         if (modifiedDate == null) {
-            final ZonedDateTime now = ZonedDateTime.now().plusSeconds(1);
+            final ZonedDateTime now = ZonedDateTime.now();
             instant = now.toInstant();
         } else {
             instant = modifiedDate;
