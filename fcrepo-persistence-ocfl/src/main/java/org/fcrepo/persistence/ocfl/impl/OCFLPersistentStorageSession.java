@@ -334,6 +334,10 @@ public class OCFLPersistentStorageSession implements PersistentStorageSession {
         final boolean commitWasStarted = this.state != State.COMMIT_NOT_STARTED;
 
         this.state = State.ROLLING_BACK;
+        if (Debug.enabled) {
+            System.out.println("Rolling back");
+        }
+
         LOGGER.info("rolling back...");
 
         if (!commitWasStarted) {
@@ -353,7 +357,12 @@ public class OCFLPersistentStorageSession implements PersistentStorageSession {
             obj.close();
         }
 
+
         if (commitWasStarted) {
+
+            if (Debug.enabled) {
+                System.out.println("Number of commutted sessions to roll back: " + this.sessionsToRollback.size());
+            }
 
             // rollback committed sessions
             //for each committed session, rollback if possible

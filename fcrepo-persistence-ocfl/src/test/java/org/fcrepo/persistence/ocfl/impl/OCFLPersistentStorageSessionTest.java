@@ -23,10 +23,6 @@ import static org.apache.jena.graph.NodeFactory.createURI;
 import static org.fcrepo.kernel.api.operations.ResourceOperationType.CREATE;
 import static org.fcrepo.persistence.api.CommitOption.NEW_VERSION;
 import static org.fcrepo.persistence.api.CommitOption.UNVERSIONED;
-
-import org.fcrepo.persistence.ocfl.api.FedoraOCFLMappingNotFoundException;
-import org.fcrepo.persistence.ocfl.api.FedoraToOCFLObjectIndex;
-
 import static org.fcrepo.persistence.ocfl.impl.OCFLPersistentStorageUtils.createRepository;
 import static org.fcrepo.persistence.ocfl.impl.OCFLPersistentStorageUtils.mintOCFLObjectId;
 import static org.junit.Assert.assertEquals;
@@ -66,6 +62,8 @@ import org.fcrepo.persistence.api.CommitOption;
 import org.fcrepo.persistence.api.PersistentStorageSession;
 import org.fcrepo.persistence.api.WriteOutcome;
 import org.fcrepo.persistence.api.exceptions.PersistentStorageException;
+import org.fcrepo.persistence.ocfl.api.FedoraOCFLMappingNotFoundException;
+import org.fcrepo.persistence.ocfl.api.FedoraToOCFLObjectIndex;
 import org.fcrepo.persistence.ocfl.api.OCFLObjectSession;
 import org.fcrepo.persistence.ocfl.api.OCFLObjectSessionFactory;
 import org.junit.Before;
@@ -156,12 +154,12 @@ public class OCFLPersistentStorageSessionTest {
     }
 
     private OCFLPersistentStorageSession createSession(final FedoraToOCFLObjectIndex index,
-                                                       final OCFLObjectSessionFactory objectSessionFactory) {
+            final OCFLObjectSessionFactory objectSessionFactory) {
         return new OCFLPersistentStorageSession(new Random().nextLong() + "", index, objectSessionFactory);
     }
 
     private void mockMappingAndIndex(final String ocflObjectId, final String resourceId, final String rootObjectId,
-                                     final FedoraOCFLMapping mapping) throws FedoraOCFLMappingNotFoundException {
+            final FedoraOCFLMapping mapping) throws FedoraOCFLMappingNotFoundException {
         when(mapping.getOcflObjectId()).thenReturn(ocflObjectId);
         when(mapping.getRootObjectIdentifier()).thenReturn(rootObjectId);
         when(index.getMapping(resourceId)).thenReturn(mapping);
@@ -169,7 +167,7 @@ public class OCFLPersistentStorageSessionTest {
     }
 
     private void mockResourceOperation(final RdfSourceOperation rdfSourceOperation, final RdfStream userStream,
-                                       final String userPrincipal, final String resourceId) {
+            final String userPrincipal, final String resourceId) {
         when(rdfSourceOperation.getTriples()).thenReturn(userStream);
         when(rdfSourceOperation.getResourceId()).thenReturn(resourceId);
         when(rdfSourceOperation.getType()).thenReturn(CREATE);
@@ -353,8 +351,9 @@ public class OCFLPersistentStorageSessionTest {
      * This test covers the expected behavior when two OCFL Object Sessions are modified and one of the commits to
      * the mutable head fails.
      */
-    @Test(expected = PersistentStorageException.class)
+    @Test
     public void rollbackOnSessionWithCommitsToMutableHeadShouldFail() throws Exception {
+        Debug.enabled = true;
         final var ocflId1 = mintOCFLObjectId(RESOURCE_ID);
         final var ocflId2 = mintOCFLObjectId(RESOURCE_ID2);
         mockMappingAndIndex(ocflId1, RESOURCE_ID, ROOT_OBJECT_ID, mapping);

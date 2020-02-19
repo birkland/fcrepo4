@@ -46,7 +46,7 @@ before_script:
    fi
     
 script:
- - ./mvnw -Dfcrepo.streaming.parallel=true install -B -V
+ - ./mvnw -DredirectTestOutputToFile=false -Dfcrepo.streaming.parallel=true install -B -V
 
 notifications:
   irc: "irc.freenode.org#fcrepo"
