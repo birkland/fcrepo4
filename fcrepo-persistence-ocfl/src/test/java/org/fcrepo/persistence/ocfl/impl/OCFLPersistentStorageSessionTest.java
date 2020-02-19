@@ -66,6 +66,7 @@ import org.fcrepo.persistence.ocfl.api.FedoraOCFLMappingNotFoundException;
 import org.fcrepo.persistence.ocfl.api.FedoraToOCFLObjectIndex;
 import org.fcrepo.persistence.ocfl.api.OCFLObjectSession;
 import org.fcrepo.persistence.ocfl.api.OCFLObjectSessionFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -153,6 +154,11 @@ public class OCFLPersistentStorageSessionTest {
         when(objectSession2.write(anyString(), any(InputStream.class))).thenReturn(writeOutcome);
     }
 
+    @After
+    public void tearDown() {
+        Debug.enabled = false;
+    }
+
     private OCFLPersistentStorageSession createSession(final FedoraToOCFLObjectIndex index,
             final OCFLObjectSessionFactory objectSessionFactory) {
         return new OCFLPersistentStorageSession(new Random().nextLong() + "", index, objectSessionFactory);
@@ -176,6 +182,9 @@ public class OCFLPersistentStorageSessionTest {
 
     private void mockResourceOperation(final RdfSourceOperation rdfSourceOperation, final String resourceId) {
         final Node resourceUri = createURI(resourceId);
+        if (Debug.enabled) {
+            System.out.println("Mocking resource operation for " + resourceId);
+        }
         mockResourceOperation(rdfSourceOperation, new DefaultRdfStream(resourceUri, Stream.empty()),
                 USER_PRINCIPAL,
                 resourceUri.getURI());
@@ -362,6 +371,9 @@ public class OCFLPersistentStorageSessionTest {
         mockMappingAndIndex(ocflId2, RESOURCE_ID2, ROOT_OBJECT_ID_2, mapping2);
         mockResourceOperation(rdfSourceOperation2, RESOURCE_ID2);
 
+        System.out.println("Object session 1 is " + objectSession1.hashCode());
+        System.out.println("Object session 2 is " + objectSession2.hashCode());
+
         //mock success on commit for the first object session
         when(mockSessionFactory.create(eq(ocflId1), anyString())).thenReturn(objectSession1);
         when(objectSession1.commit(eq(UNVERSIONED))).thenReturn(Instant.now().toString());
@@ -374,7 +386,9 @@ public class OCFLPersistentStorageSessionTest {
         final PersistentStorageSession session1 = createSession(index, mockSessionFactory);
         try {
             //perform the create rdf operations
+            System.out.println("Test: persisting session 1");
             session1.persist(rdfSourceOperation);
+            System.out.println("Test: persisting session 2");
             session1.persist(rdfSourceOperation2);
         } catch (final PersistentStorageException e) {
             fail("Operations should not fail.");

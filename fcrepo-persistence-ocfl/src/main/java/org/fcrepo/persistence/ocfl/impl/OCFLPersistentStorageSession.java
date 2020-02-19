@@ -276,8 +276,14 @@ public class OCFLPersistentStorageSession implements PersistentStorageSession {
 
         this.state = State.COMMIT_STARTED;
         LOGGER.debug("Starting commit.");
+        if (Debug.enabled) {
+            System.out.println("Starting to commit");
+        }
 
         phaser.arriveAndAwaitAdvance();
+        if (Debug.enabled) {
+            System.out.println("All persisters are complete");
+        }
 
         LOGGER.debug("All persisters are complete");
 
@@ -297,17 +303,30 @@ public class OCFLPersistentStorageSession implements PersistentStorageSession {
             LOGGER.debug("Prepare succeeded.");
         } catch (final Exception e) {
             this.state = State.PREPARE_FAILED;
+            if (Debug.enabled) {
+                System.out.println("Error preparing commit");
+                e.printStackTrace();
+            }
             throw new PersistentStorageException("Commit failed due to : " + e.getMessage(), e);
         }
 
         try {
             this.sessionsToRollback = new ArrayList<>(sessions.size());
+            if (Debug.enabled) {
+                System.out.println("OK, for this numer of sessions to commt: " + sessions.size());
+            }
 
 
             //perform commit
             for (final OCFLObjectSession objectSession : sessions) {
                 final CommitOption option = objectSession.getDefaultCommitOption();
+                if (Debug.enabled) {
+                    System.out.println("Committing session " + objectSession.hashCode());
+                }
                 objectSession.commit(option);
+                if (Debug.enabled) {
+                    System.out.println("Commit successful. Adding committed session to rollback for some reason");
+                }
                 sessionsToRollback.add(new CommittedSession(objectSession, option));
             }
 
@@ -315,6 +334,10 @@ public class OCFLPersistentStorageSession implements PersistentStorageSession {
             LOGGER.info("Successfully committed {}", this);
         } catch (final Exception e) {
             this.state = State.COMMIT_FAILED;
+            if (Debug.enabled) {
+                System.out.println("Error committing " + e.getClass().getCanonicalName());
+                e.printStackTrace(System.out);
+            }
             throw new PersistentStorageException("Commit failed due to : " + e.getMessage(), e);
         }
     }
